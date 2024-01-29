@@ -12,15 +12,7 @@ const state = {
 
 const schema = yup.string().required().url().notOneOf(state.feeds);
 
-const validate = (data) => {
-  schema.validate(data)
-    .then(() => {
-      state.errors = '';
-    })
-    .catch((err) => {
-      state.errors = err.errors;
-    });
-};
+const validate = (data) => schema.validate(data).then(() => '').catch((err) => err.errors);
 
 const watchedState = onChange(state, (path, value) => {
   if (path === 'state') {
@@ -40,7 +32,9 @@ form.addEventListener('submit', (e) => {
   const formData = new FormData(e.target);
   const newUrl = formData.get('url');
   state.data = newUrl;
-  validate(newUrl);
+  validate(newUrl).then((data) => {
+    state.errors = data;
+  });
   if (state.errors !== '') {
     watchedState.state = 'invalid';
   } else {
