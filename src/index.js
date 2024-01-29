@@ -2,6 +2,7 @@ import './styles.scss';
 import 'bootstrap';
 import * as yup from 'yup';
 import onChange from 'on-change';
+import initView from './view.js';
 
 const state = {
   state: 'valid',
@@ -10,16 +11,7 @@ const state = {
   feeds: [],
 };
 
-const watchedState = onChange(state, (path, value) => {
-  if (path === 'state') {
-    const input = document.querySelector('.form-control');
-    if (value === 'invalid') {
-      input.classList.add('is-invalid');
-    } else {
-      input.classList.remove('is-invalid');
-    }
-  }
-});
+const watchedState = onChange(state, initView);
 
 const schema = yup.string().required().url();
 
@@ -46,6 +38,5 @@ form.addEventListener('submit', (e) => {
         watchedState.state = 'valid';
         state.feeds.push(newUrl);
       }
-      console.log(state)
     });
 });
