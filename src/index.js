@@ -10,10 +10,6 @@ const state = {
   feeds: [],
 };
 
-const schema = yup.string().required().url().notOneOf(state.feeds);
-
-const validate = (data) => schema.validate(data).then(() => '').catch((err) => err.errors);
-
 const watchedState = onChange(state, (path, value) => {
   if (path === 'state') {
     const input = document.querySelector('.form-control');
@@ -25,6 +21,13 @@ const watchedState = onChange(state, (path, value) => {
   }
 });
 
+const schema = yup.string().required().url();
+
+const validate = (data, feeds) => {
+  const actualSchema = schema.notOneOf(feeds);
+  return actualSchema.validate(data).then(() => '').catch((err) => err.errors);
+};
+
 const form = document.querySelector('.rss-form');
 
 form.addEventListener('submit', (e) => {
@@ -32,7 +35,7 @@ form.addEventListener('submit', (e) => {
   const formData = new FormData(e.target);
   const newUrl = formData.get('url');
   state.data = newUrl;
-  validate(newUrl)
+  validate(newUrl, watchedState.feeds)
     .then((data) => {
       state.errors = data;
     })
@@ -43,5 +46,6 @@ form.addEventListener('submit', (e) => {
         watchedState.state = 'valid';
         state.feeds.push(newUrl);
       }
+      console.log(state)
     });
 });
