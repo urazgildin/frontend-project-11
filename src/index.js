@@ -32,13 +32,16 @@ form.addEventListener('submit', (e) => {
   const formData = new FormData(e.target);
   const newUrl = formData.get('url');
   state.data = newUrl;
-  validate(newUrl).then((data) => {
-    state.errors = data;
-  });
-  if (state.errors !== '') {
-    watchedState.state = 'invalid';
-  } else {
-    watchedState.state = 'valid';
-    state.feeds.push(newUrl);
-  }
+  validate(newUrl)
+    .then((data) => {
+      state.errors = data;
+    })
+    .then(() => {
+      if (state.errors !== '') {
+        watchedState.state = 'invalid';
+      } else {
+        watchedState.state = 'valid';
+        state.feeds.push(newUrl);
+      }
+    });
 });
