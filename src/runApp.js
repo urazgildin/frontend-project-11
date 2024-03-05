@@ -2,14 +2,17 @@ import './styles.scss';
 import 'bootstrap';
 import * as yup from 'yup';
 import i18next from 'i18next';
+import axios from 'axios';
 import watch from './view.js';
 import resources from './locales/ru.js'
+import parseData from './utils/parser.js'
 
 const runApp = () => {
   const state = {
     state: 'valid',
     data: '',
     error: '',
+    validRss: [],
     feeds: [],
   };
 
@@ -37,6 +40,13 @@ const runApp = () => {
       return actualSchema.validate(data);
     };
 
+    const buildUrl = (adress) => {
+      const url = new URL('https://allorigins.hexlet.app/get');
+      url.searchParams.set('disableCache', 'true');
+      url.searchParams.set('url', adress);
+      return url;
+    };
+
     const form = document.querySelector('.rss-form');
 
     form.addEventListener('submit', (e) => {
@@ -44,11 +54,18 @@ const runApp = () => {
       const formData = new FormData(e.target);
       const newUrl = formData.get('url');
       state.data = newUrl;
-      validate(newUrl, watchedState.feeds)
+      validate(newUrl, watchedState.validRss)
         .then(() => {
-          watchedState.state = 'valid';
-          state.feeds.push(newUrl);
-          form.reset();
+          const url = buildUrl(newUrl);
+          axios.get(url)
+            .then((response) => {
+              const data = response.data.contents;
+              state.feeds.push(parseData(data));
+              state.validRss.push(newUrl);
+              form.reset();
+              console.log(state);
+              watchedState.state = 'valid';
+            });
         })
         .catch((err) => {
           state.error = err.message.key;
