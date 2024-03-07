@@ -10,15 +10,18 @@ const parseData = (string) => {
   const doc = parser.parseFromString(string, 'text/xml');
   const rss = doc.querySelector('rss');
   if (rss === null) {
+    const error = new Error();
+    error.name = 'RSS';
+    throw error;
   } else {
     feedState.title = doc.querySelector('title').textContent;
     feedState.description = doc.querySelector('description').textContent;
     const items = doc.querySelectorAll('item');
     const itemsAsArr = Array.from(items);
     const postsData = itemsAsArr.map((item) => {
-      const itemDescription = item.querySelector('description').textContent;
+      const itemTitle = item.querySelector('title').textContent;
       const itemLink = item.querySelector('link').textContent;
-      return { description: itemDescription, link: itemLink };
+      return { title: itemTitle, link: itemLink };
     });
     feedState.posts = postsData;
   }
