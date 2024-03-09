@@ -9,7 +9,6 @@ import parseData from './utils/parser.js'
 
 const app = (i118Instance) => {
   const state = {
-    stateOfValidation: '',
     data: '',
     error: '',
     validRss: [],
@@ -56,7 +55,6 @@ const app = (i118Instance) => {
         state.feeds.push(parseData(data));
         state.validRss.push(newUrl);
         form.reset();
-        console.log(state);
         watchedState.error = null;
       })
       .catch((err) => {
@@ -65,7 +63,6 @@ const app = (i118Instance) => {
         } else {
           watchedState.error = err.message.key;
         }
-        console.log(state)
       });
   });
 };
