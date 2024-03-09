@@ -9,7 +9,6 @@ import parseData from './utils/parser.js'
 
 const app = (i118Instance) => {
   const state = {
-    data: '',
     error: '',
     validRss: [],
     feeds: [],
@@ -47,7 +46,6 @@ const app = (i118Instance) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const newUrl = formData.get('url');
-    state.data = newUrl;
     validate(newUrl, state.validRss)
       .then(() => axios.get(buildUrl(newUrl)))
       .then((response) => {
