@@ -5,13 +5,14 @@ import i18next from 'i18next';
 import axios from 'axios';
 import watch from './view.js';
 import resources from './locales/ru.js'
-import parseData from './utils/parser.js'
+import { parseData, buildUrl } from './utils.js'
 
 const app = (i118Instance) => {
   const state = {
-    error: '',
+    error: null,
     validRss: [],
     feeds: [],
+    posts: [],
   };
 
   const watchedState = watch(state, i118Instance);
@@ -33,13 +34,6 @@ const app = (i118Instance) => {
     return actualSchema.validate(data);
   };
 
-  const buildUrl = (adress) => {
-    const url = new URL('https://allorigins.hexlet.app/get');
-    url.searchParams.set('disableCache', 'true');
-    url.searchParams.set('url', adress);
-    return url;
-  };
-
   const form = document.querySelector('.rss-form');
 
   form.addEventListener('submit', (e) => {
@@ -50,10 +44,12 @@ const app = (i118Instance) => {
       .then(() => axios.get(buildUrl(newUrl)))
       .then((response) => {
         const data = response.data.contents;
-        state.feeds.push(parseData(data));
+        const { feed, posts } = parseData(data);
+        watchedState.feeds.push(feed);
+        watchedState.posts.push(posts);
         state.validRss.push(newUrl);
-        form.reset();
         watchedState.error = null;
+        form.reset();
       })
       .catch((err) => {
         if (err.name === 'RSS') {
