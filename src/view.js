@@ -82,16 +82,16 @@ const watch = (state, i18n) => {
     switch (path) {
       case 'feeds':
         makeIfValid(input, feedback, i18n);
-        feedsEl.append(constructNewCard('Фиды', updateFeeds(value)));
+        feedsEl.replaceChildren(constructNewCard('Фиды', updateFeeds(value)));
         break;
       case 'posts':
-        postsEl.append(constructNewCard('Посты', updatePosts(value)));
+        postsEl.replaceChildren(constructNewCard('Посты', updatePosts(value)));
         break;
       case 'error':
         makeIfInvalid(input, feedback, value, i18n);
         break;
       default:
-        throw new Error('Uunexpected path');
+        throw new Error('Unexpected path');
     }
   });
   return watchedState;

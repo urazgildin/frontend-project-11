@@ -5,7 +5,7 @@ import i18next from 'i18next';
 import axios from 'axios';
 import watch from './view.js';
 import resources from './locales/ru.js'
-import { parseData, buildUrl } from './utils.js'
+import { parseData, buildUrl, updatePosts } from './utils.js'
 
 const app = (i118Instance) => {
   const state = {
@@ -16,6 +16,8 @@ const app = (i118Instance) => {
   };
 
   const watchedState = watch(state, i118Instance);
+
+  updatePosts(state.validRss, watchedState)
 
   yup.setLocale({
     string: {
@@ -50,6 +52,7 @@ const app = (i118Instance) => {
         state.validRss.push(newUrl);
         watchedState.error = null;
         form.reset();
+        console.log(state)
       })
       .catch((err) => {
         if (err.name === 'RSS') {

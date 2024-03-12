@@ -55,10 +55,11 @@ const updatePosts = (feeds, watchedState) => {
         });
         return postsData;
       });
-      const flatPosts = posts.flat();
-      watchedState.posts = flatPosts;
+      if (posts.length !== 0) {
+        watchedState.posts = posts;
+      }
     })
-    .then(() => setTimeout(updatePosts, 5000, feeds));
+    .then(() => setTimeout(updatePosts, 5000, feeds, watchedState));
 };
 
 export { parseData, buildUrl, updatePosts };
