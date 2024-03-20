@@ -34,22 +34,31 @@ const updateFeeds = (feeds) => {
   return ulOfFeeds;
 };
 
-const updatePosts = (posts) => {
+const updatePosts = (posts, readenPosts) => {
   const ulOfPosts = document.createElement('ul');
   ulOfPosts.classList.add('list-group', 'border-0', 'rounded-0');
   const listOfPosts = posts.flat().map((post) => {
     const newLi = document.createElement('li');
     newLi.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
     const a = document.createElement('a');
-    a.classList.add('fw-bold', 'm-0');
+    if (readenPosts.includes(post.id)) {
+      a.classList.add('fw-normal');
+    } else {
+      a.classList.add('fw-bold');
+    }
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.dataset.id = post.id;
     a.textContent = post.title;
     a.href = post.link;
 
     const button = document.createElement('button');
-    button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+    button.classList.add('btn', 'btn-outline-primary');
+    button.dataset.id = post.id;
+    button.dataset.bsToggle = 'modal';
+    button.dataset.bsTarget = '#modal';
     button.type = 'button';
     button.textContent = 'Просмотр';
-
     newLi.append(a);
     newLi.append(button);
     return newLi;
@@ -85,10 +94,26 @@ const watch = (state, i18n) => {
         feedsEl.replaceChildren(constructNewCard('Фиды', updateFeeds(value)));
         break;
       case 'posts':
-        postsEl.replaceChildren(constructNewCard('Посты', updatePosts(value)));
+        const readenPosts = state.uiState.readenPosts;
+        postsEl.replaceChildren(constructNewCard('Посты', updatePosts(value, readenPosts)));
         break;
       case 'error':
         makeIfInvalid(input, feedback, value, i18n);
+        break;
+      case 'uiState.activePost':
+        const modalTitle = document.querySelector('.modal-title');
+        const modalBody = document.querySelector('.modal-body');
+        modalTitle.textContent = value.title;
+        modalBody.textContent = value.description;
+        break;
+      case 'uiState.readenPosts':
+        const titles = document.querySelectorAll('a');
+        titles.forEach((title) => {
+          if (value.includes(title.dataset.id)) {
+            title.classList.remove('fw-bold');
+            title.classList.add('fw-normal');
+          }
+        });
         break;
       default:
         throw new Error('Unexpected path');

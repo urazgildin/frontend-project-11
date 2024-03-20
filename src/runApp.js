@@ -13,11 +13,14 @@ const app = (i118Instance) => {
     validRss: [],
     feeds: [],
     posts: [],
+    uiState: {
+      readenPosts: [],
+      activePost: '',
+    },
   };
 
   const watchedState = watch(state, i118Instance);
-
-  updatePosts(state.validRss, watchedState)
+  updatePosts(state.validRss, state.posts, watchedState);
 
   yup.setLocale({
     string: {
@@ -52,7 +55,6 @@ const app = (i118Instance) => {
         state.validRss.push(newUrl);
         watchedState.error = null;
         form.reset();
-        console.log(state)
       })
       .catch((err) => {
         if (err.name === 'RSS') {
@@ -61,6 +63,19 @@ const app = (i118Instance) => {
           watchedState.error = err.message.key;
         }
       });
+  });
+
+  const postsEl = document.querySelector('.posts');
+  postsEl.addEventListener('click', (e) => {
+    const currentId = e.target.dataset.id;
+    const [activePost] = state.posts.flat().filter((post) => post.id === currentId);
+    if (e.target.tagName === 'A') {
+      watchedState.uiState.readenPosts.push(currentId);
+    }
+    if (e.target.tagName === 'BUTTON') {
+      watchedState.uiState.activePost = activePost;
+      watchedState.uiState.readenPosts.push(currentId);
+    }
   });
 };
 

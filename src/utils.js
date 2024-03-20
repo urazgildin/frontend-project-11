@@ -1,4 +1,5 @@
 import axios from 'axios';
+import _ from 'lodash';
 
 const parseData = (string) => {
   const feedsAndPosts = {
@@ -24,7 +25,9 @@ const parseData = (string) => {
     const postsData = itemsAsArr.map((item) => {
       const itemTitle = item.querySelector('title').textContent;
       const itemLink = item.querySelector('link').textContent;
-      return { title: itemTitle, link: itemLink };
+      const itemDescription = item.querySelector('description').textContent;
+      const itemId = _.uniqueId();
+      return { title: itemTitle, link: itemLink, description: itemDescription, id: itemId };
     });
     feedsAndPosts.posts = postsData;
   }
@@ -38,7 +41,13 @@ const buildUrl = (adress) => {
   return url;
 };
 
-const updatePosts = (feeds, watchedState) => {
+const compareListsOfPosts = (oldPosts, newPosts) => {
+  const oldPostsTitles = oldPosts.flat().map((post) => post.title);
+  const filteredPosts = newPosts.flat().filter((post) => !oldPostsTitles.includes(post.title));
+  return filteredPosts;
+};
+
+const updatePosts = (feeds, currentPosts, watchedState) => {
   const promises = feeds.map((feed) => axios.get(buildUrl(feed)));
   Promise.all(promises)
     .then((responses) => {
@@ -51,15 +60,18 @@ const updatePosts = (feeds, watchedState) => {
         const postsData = itemsAsArr.map((item) => {
           const itemTitle = item.querySelector('title').textContent;
           const itemLink = item.querySelector('link').textContent;
-          return { title: itemTitle, link: itemLink };
+          const itemDescription = item.querySelector('description').textContent;
+          const itemId = _.uniqueId();
+          return { title: itemTitle, link: itemLink, description: itemDescription, id: itemId };
         });
         return postsData;
       });
-      if (posts.length !== 0) {
-        watchedState.posts = posts;
+      const newPosts = compareListsOfPosts(currentPosts, posts);
+      if (newPosts.length !== 0) {
+        watchedState.posts.push(newPosts);
       }
     })
-    .then(() => setTimeout(updatePosts, 5000, feeds, watchedState));
+    .finally(() => setTimeout(updatePosts, 5000, feeds, currentPosts, watchedState));
 };
 
 export { parseData, buildUrl, updatePosts };
