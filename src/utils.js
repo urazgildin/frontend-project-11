@@ -62,7 +62,9 @@ const updatePosts = (feeds, currentPosts, watchedState) => {
           const itemLink = item.querySelector('link').textContent;
           const itemDescription = item.querySelector('description').textContent;
           const itemId = _.uniqueId();
-          return { title: itemTitle, link: itemLink, description: itemDescription, id: itemId };
+          return {
+            title: itemTitle, link: itemLink, description: itemDescription, id: itemId,
+          };
         });
         return postsData;
       });
