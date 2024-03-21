@@ -20,7 +20,7 @@ const parseData = (string) => {
   } else {
     feedsAndPosts.feed.title = doc.querySelector('title').textContent;
     feedsAndPosts.feed.description = doc.querySelector('description').textContent;
-    const items = doc.querySelectorAll('item');
+    const items = doc.querySelectorAll('item')
     const itemsAsArr = Array.from(items);
     const postsData = itemsAsArr.map((item) => {
       const itemTitle = item.querySelector('title').textContent;
