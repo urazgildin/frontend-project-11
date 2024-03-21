@@ -57,8 +57,7 @@ const app = (i118Instance) => {
       .catch((err) => {
         if (err.name === 'RSS') {
           watchedState.error = 'errors.notRss';
-        }
-        if (err.name === 'AxiosError') {
+        } else if (err.name === 'AxiosError') {
           watchedState.error = 'errors.netsError';
         } else {
           watchedState.error = err.message.key;
