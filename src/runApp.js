@@ -1,11 +1,9 @@
-import './styles.scss';
-import 'bootstrap';
 import * as yup from 'yup';
 import i18next from 'i18next';
 import axios from 'axios';
 import watch from './view.js';
-import resources from './locales/ru.js'
-import { parseData, buildUrl, updatePosts } from './utils.js'
+import resources from './locales/ru.js';
+import { parseData, buildUrl, updatePosts } from './utils.js';
 
 const app = (i118Instance) => {
   const state = {
