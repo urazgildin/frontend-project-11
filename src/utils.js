@@ -20,14 +20,16 @@ const parseData = (string) => {
   } else {
     feedsAndPosts.feed.title = doc.querySelector('title').textContent;
     feedsAndPosts.feed.description = doc.querySelector('description').textContent;
-    const items = doc.querySelectorAll('item')
+    const items = doc.querySelectorAll('item');
     const itemsAsArr = Array.from(items);
     const postsData = itemsAsArr.map((item) => {
       const itemTitle = item.querySelector('title').textContent;
       const itemLink = item.querySelector('link').textContent;
       const itemDescription = item.querySelector('description').textContent;
       const itemId = _.uniqueId();
-      return { title: itemTitle, link: itemLink, description: itemDescription, id: itemId };
+      return {
+        title: itemTitle, link: itemLink, description: itemDescription, id: itemId,
+      };
     });
     feedsAndPosts.posts = postsData;
   }
