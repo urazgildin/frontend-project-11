@@ -1,6 +1,21 @@
 import axios from 'axios';
 import _ from 'lodash';
 
+const parsePosts = (doc) => {
+  const items = doc.querySelectorAll('item');
+  const itemsAsArr = Array.from(items);
+  const postsData = itemsAsArr.map((item) => {
+    const itemTitle = item.querySelector('title').textContent;
+    const itemLink = item.querySelector('link').textContent;
+    const itemDescription = item.querySelector('description').textContent;
+    const itemId = _.uniqueId();
+    return {
+      title: itemTitle, link: itemLink, description: itemDescription, id: itemId,
+    };
+  });
+  return postsData;
+};
+
 const parseData = (string) => {
   const feedsAndPosts = {
     feed: {
@@ -20,18 +35,8 @@ const parseData = (string) => {
   } else {
     feedsAndPosts.feed.title = doc.querySelector('title').textContent;
     feedsAndPosts.feed.description = doc.querySelector('description').textContent;
-    const items = doc.querySelectorAll('item');
-    const itemsAsArr = Array.from(items);
-    const postsData = itemsAsArr.map((item) => {
-      const itemTitle = item.querySelector('title').textContent;
-      const itemLink = item.querySelector('link').textContent;
-      const itemDescription = item.querySelector('description').textContent;
-      const itemId = _.uniqueId();
-      return {
-        title: itemTitle, link: itemLink, description: itemDescription, id: itemId,
-      };
-    });
-    feedsAndPosts.posts = postsData;
+    const items = parsePosts(doc);
+    feedsAndPosts.posts = items;
   }
   return feedsAndPosts;
 };
@@ -57,18 +62,8 @@ const updatePosts = (feeds, currentPosts, watchedState) => {
         const data = response.data.contents;
         const parser = new DOMParser();
         const doc = parser.parseFromString(data, 'text/xml');
-        const items = doc.querySelectorAll('item');
-        const itemsAsArr = Array.from(items);
-        const postsData = itemsAsArr.map((item) => {
-          const itemTitle = item.querySelector('title').textContent;
-          const itemLink = item.querySelector('link').textContent;
-          const itemDescription = item.querySelector('description').textContent;
-          const itemId = _.uniqueId();
-          return {
-            title: itemTitle, link: itemLink, description: itemDescription, id: itemId,
-          };
-        });
-        return postsData;
+        const items = parsePosts(doc);
+        return items;
       });
       const newPosts = compareListsOfPosts(currentPosts, posts);
       if (newPosts.length !== 0) {
