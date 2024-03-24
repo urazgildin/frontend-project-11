@@ -1,5 +1,7 @@
 name: github actions
 on: push
+env:
+  CI: true
 jobs:
   build:
     runs-on: ubuntu-latest
