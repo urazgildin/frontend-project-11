@@ -9,12 +9,11 @@ const constructNewCard = (textContent, ulEl) => {
   h2.classList.add('card-title', 'h4');
   h2.textContent = textContent;
   innerDiv.append(h2);
-  mainDiv.append(innerDiv);
-  mainDiv.append(ulEl);
+  mainDiv.append(innerDiv, ulEl);
   return mainDiv;
 };
 
-const updateFeeds = (feeds) => {
+const createFeedsEl = (feeds) => {
   const ulOfFeeds = document.createElement('ul');
   ulOfFeeds.classList.add('list-group', 'border-0', 'rounded-0');
   const listOfFeeds = feeds.map((feed) => {
@@ -26,18 +25,17 @@ const updateFeeds = (feeds) => {
     const p = document.createElement('p');
     p.classList.add('m-0', 'small', 'text-black-50');
     p.textContent = feed.description;
-    newLi.append(h3);
-    newLi.append(p);
+    newLi.append(h3, p);
     return newLi;
   });
   ulOfFeeds.replaceChildren(...listOfFeeds);
   return ulOfFeeds;
 };
 
-const updatePosts = (posts, readenPosts) => {
+const createPostsEl = (posts, readenPosts) => {
   const ulOfPosts = document.createElement('ul');
   ulOfPosts.classList.add('list-group', 'border-0', 'rounded-0');
-  const listOfPosts = posts.flat().map((post) => {
+  const listOfPosts = posts.map((post) => {
     const newLi = document.createElement('li');
     newLi.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
     const a = document.createElement('a');
@@ -59,8 +57,7 @@ const updatePosts = (posts, readenPosts) => {
     button.dataset.bsTarget = '#modal';
     button.type = 'button';
     button.textContent = 'Просмотр';
-    newLi.append(a);
-    newLi.append(button);
+    newLi.append(a, button);
     return newLi;
   });
   ulOfPosts.replaceChildren(...listOfPosts);
@@ -93,10 +90,10 @@ const watch = (state, i18n) => {
     switch (path) {
       case 'feeds':
         makeIfValid(input, feedback, i18n);
-        feedsEl.replaceChildren(constructNewCard('Фиды', updateFeeds(value)));
+        feedsEl.replaceChildren(constructNewCard('Фиды', createFeedsEl(value)));
         break;
       case 'posts':
-        postsEl.replaceChildren(constructNewCard('Посты', updatePosts(value, state.uiState.readenPosts)));
+        postsEl.replaceChildren(constructNewCard('Посты', createPostsEl(value, state.uiState.readenPosts)));
         break;
       case 'error':
         makeIfInvalid(input, feedback, value, i18n);

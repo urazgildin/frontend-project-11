@@ -1,7 +1,7 @@
 import axios from 'axios';
 import _ from 'lodash';
 
-const parsePosts = (doc) => {
+const getPostsData = (doc) => {
   const items = doc.querySelectorAll('item');
   const itemsAsArr = Array.from(items);
   const postsData = itemsAsArr.map((item) => {
@@ -35,8 +35,8 @@ const parseData = (string) => {
   } else {
     feedsAndPosts.feed.title = doc.querySelector('title').textContent;
     feedsAndPosts.feed.description = doc.querySelector('description').textContent;
-    const items = parsePosts(doc);
-    feedsAndPosts.posts = items;
+    const postsData = getPostsData(doc);
+    feedsAndPosts.posts = postsData;
   }
   return feedsAndPosts;
 };
@@ -49,8 +49,8 @@ const buildUrl = (adress) => {
 };
 
 const compareListsOfPosts = (oldPosts, newPosts) => {
-  const oldPostsTitles = oldPosts.flat().map((post) => post.title);
-  const filteredPosts = newPosts.flat().filter((post) => !oldPostsTitles.includes(post.title));
+  const oldPostsTitles = oldPosts.map((post) => post.title);
+  const filteredPosts = newPosts.filter((post) => !oldPostsTitles.includes(post.title));
   return filteredPosts;
 };
 
@@ -62,12 +62,12 @@ const updatePosts = (feeds, currentPosts, watchedState) => {
         const data = response.data.contents;
         const parser = new DOMParser();
         const doc = parser.parseFromString(data, 'text/xml');
-        const items = parsePosts(doc);
-        return items;
+        const postsData = getPostsData(doc);
+        return postsData;
       });
-      const newPosts = compareListsOfPosts(currentPosts, posts);
+      const newPosts = compareListsOfPosts(currentPosts, posts.flat());
       if (newPosts.length !== 0) {
-        watchedState.posts.push(newPosts);
+        watchedState.posts.push(...newPosts);
       }
     })
     .finally(() => setTimeout(updatePosts, 5000, feeds, currentPosts, watchedState));

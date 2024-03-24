@@ -49,7 +49,7 @@ const app = (i118Instance) => {
         const data = response.data.contents;
         const { feed, posts } = parseData(data);
         watchedState.feeds.push(feed);
-        watchedState.posts.push(posts);
+        watchedState.posts.push(...posts);
         state.validRss.push(newUrl);
         watchedState.error = null;
         form.reset();
@@ -71,7 +71,7 @@ const app = (i118Instance) => {
   const postsEl = document.querySelector('.posts');
   postsEl.addEventListener('click', (e) => {
     const currentId = e.target.dataset.id;
-    const [activePost] = state.posts.flat().filter((post) => post.id === currentId);
+    const [activePost] = state.posts.filter((post) => post.id === currentId);
     if (e.target.tagName === 'A') {
       watchedState.uiState.readenPosts.push(currentId);
     }
