@@ -68,7 +68,7 @@ const makeIfValid = (input, feedback, i18n) => {
   input.classList.remove('is-invalid');
   feedback.classList.remove('text-danger');
   feedback.classList.add('text-success');
-  feedback.textContent = i18n.t('others.success');
+  feedback.textContent = i18n.t('feedbackTexts.success');
 };
 
 const makeIfInvalid = (input, feedback, value, i18n) => {
@@ -90,10 +90,10 @@ const watch = (state, i18n) => {
     switch (path) {
       case 'feeds':
         makeIfValid(input, feedback, i18n);
-        feedsEl.replaceChildren(constructNewCard('Фиды', createFeedsEl(value)));
+        feedsEl.replaceChildren(constructNewCard(i18n.t('interfaceTexts.feeds'), createFeedsEl(value)));
         break;
       case 'posts':
-        postsEl.replaceChildren(constructNewCard('Посты', createPostsEl(value, state.uiState.readenPosts)));
+        postsEl.replaceChildren(constructNewCard(i18n.t('interfaceTexts.posts'), createPostsEl(value, state.uiState.readenPosts)));
         break;
       case 'error':
         makeIfInvalid(input, feedback, value, i18n);

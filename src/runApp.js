@@ -22,11 +22,10 @@ const app = (i118Instance) => {
 
   yup.setLocale({
     string: {
-      url: { key: 'errors.ifInvalid' },
+      url: { key: 'feedbackTexts.ifInvalid' },
     },
     mixed: {
-      required: () => ({ key: 'errors.required' }),
-      notOneOf: () => ({ key: 'errors.ifExist' }),
+      notOneOf: () => ({ key: 'feedbackTexts.ifExist' }),
     },
   });
 
@@ -57,10 +56,10 @@ const app = (i118Instance) => {
       .catch((err) => {
         switch (err.name) {
           case 'RSS':
-            watchedState.error = 'errors.notRss';
+            watchedState.error = 'feedbackTexts.notRss';
             break;
           case 'AxiosError':
-            watchedState.error = 'errors.netsError';
+            watchedState.error = 'feedbackTexts.netsError';
             break;
           default:
             watchedState.error = err.message.key;
