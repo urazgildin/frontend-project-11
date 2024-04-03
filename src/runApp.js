@@ -3,7 +3,30 @@ import i18next from 'i18next';
 import axios from 'axios';
 import watch from './view.js';
 import resources from './locales/ru.js';
-import { parseData, buildUrl, updatePosts } from './utils.js';
+import settings from './locales/setting.js';
+import { parseData, getPostsData } from './parser.js';
+import { buildUrl, compareListsOfPosts } from './utils.js';
+
+const delay = 5000;
+
+const updatePosts = (feeds, currentPosts, watchedState) => {
+  const promises = feeds.map((feed) => axios.get(buildUrl(feed)));
+  Promise.all(promises)
+    .then((responses) => {
+      const posts = responses.map((response) => {
+        const data = response.data.contents;
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(data, 'text/xml');
+        const postsData = getPostsData(doc);
+        return postsData;
+      });
+      const newPosts = compareListsOfPosts(currentPosts, posts.flat());
+      if (newPosts.length !== 0) {
+        watchedState.posts.push(...newPosts);
+      }
+    })
+    .finally(() => setTimeout(updatePosts, delay, feeds, currentPosts, watchedState));
+};
 
 const app = (i118Instance) => {
   const state = {
@@ -17,17 +40,27 @@ const app = (i118Instance) => {
     },
   };
 
-  const watchedState = watch(state, i118Instance);
-  updatePosts(state.validRss, state.posts, watchedState);
+  const form = document.querySelector('.rss-form');
+  const postsEl = document.querySelector('.posts');
+  const input = document.querySelector('.form-control');
+  const feedback = document.querySelector('.feedback');
+  const feedsEl = document.querySelector('.feeds');
+  const modalTitle = document.querySelector('.modal-title');
+  const modalBody = document.querySelector('.modal-body');
 
-  yup.setLocale({
-    string: {
-      url: { key: 'feedbackTexts.ifInvalid' },
-    },
-    mixed: {
-      notOneOf: () => ({ key: 'feedbackTexts.ifExist' }),
-    },
-  });
+  const watchedState = watch(
+    state,
+    i118Instance,
+    input,
+    feedback,
+    feedsEl,
+    postsEl,
+    modalTitle,
+    modalBody,
+  );
+  setTimeout(updatePosts, delay, state.validRss, state.posts, watchedState);
+
+  yup.setLocale(settings);
 
   const schema = yup.string().required().url();
 
@@ -35,8 +68,6 @@ const app = (i118Instance) => {
     const actualSchema = schema.notOneOf(feeds);
     return actualSchema.validate(data);
   };
-
-  const form = document.querySelector('.rss-form');
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -67,7 +98,6 @@ const app = (i118Instance) => {
       });
   });
 
-  const postsEl = document.querySelector('.posts');
   postsEl.addEventListener('click', (e) => {
     const currentId = e.target.dataset.id;
     const [activePost] = state.posts.filter((post) => post.id === currentId);

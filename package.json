@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "RSS agregator",
   "main": "./src/index.js",
+  "type": "module",
   "scripts": {
     "test": "npx jest",
     "build": "NODE_ENV=production webpack --mode production"

@@ -78,14 +78,7 @@ const makeIfInvalid = (input, feedback, value, i18n) => {
   feedback.textContent = i18n.t(value);
 };
 
-const input = document.querySelector('.form-control');
-const feedback = document.querySelector('.feedback');
-const feedsEl = document.querySelector('.feeds');
-const postsEl = document.querySelector('.posts');
-const modalTitle = document.querySelector('.modal-title');
-const modalBody = document.querySelector('.modal-body');
-
-const watch = (state, i18n) => {
+const watch = (state, i18n, input, feedback, feedsEl, postsEl, modalTitle, modalBody) => {
   const watchedState = onChange(state, (path, value) => {
     switch (path) {
       case 'feeds':
