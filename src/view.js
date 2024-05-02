@@ -78,25 +78,25 @@ const makeIfInvalid = (input, feedback, value, i18n) => {
   feedback.textContent = i18n.t(value);
 };
 
-const watch = (state, i18n, input, feedback, feedsEl, postsEl, modalTitle, modalBody) => {
+const watch = (state, i18n, domElements) => {
   const watchedState = onChange(state, (path, value) => {
     switch (path) {
       case 'feeds':
-        makeIfValid(input, feedback, i18n);
-        feedsEl.replaceChildren(constructNewCard(i18n.t('interfaceTexts.feeds'), createFeedsEl(value)));
+        makeIfValid(domElements.input, domElements.feedback, i18n);
+        domElements.feedsEl.replaceChildren(constructNewCard(i18n.t('interfaceTexts.feeds'), createFeedsEl(value)));
         break;
       case 'posts':
-        postsEl.replaceChildren(constructNewCard(i18n.t('interfaceTexts.posts'), createPostsEl(value, state.uiState.readenPosts)));
+        domElements.postsEl.replaceChildren(constructNewCard(i18n.t('interfaceTexts.posts'), createPostsEl(value, state.uiState.readenPosts)));
         break;
       case 'error':
-        makeIfInvalid(input, feedback, value, i18n);
+        makeIfInvalid(domElements.input, domElements.feedback, value, i18n);
         break;
       case 'uiState.activePost':
-        modalTitle.textContent = value.title;
-        modalBody.textContent = value.description;
+        domElements.modalTitle.textContent = value.title;
+        domElements.modalBody.textContent = value.description;
         break;
       case 'uiState.readenPosts':
-        document.querySelectorAll('a').forEach((title) => {
+        domElements.links().forEach((title) => {
           if (value.includes(title.dataset.id)) {
             title.classList.remove('fw-bold');
             title.classList.add('fw-normal');

@@ -9,8 +9,8 @@ import { buildUrl, compareListsOfPosts } from './utils.js';
 
 const delay = 5000;
 
-const updatePosts = (feeds, currentPosts, watchedState) => {
-  const promises = feeds.map((feed) => axios.get(buildUrl(feed)));
+const updatePosts = (currentWatchedState) => {
+  const promises = currentWatchedState.validRss.map((rss) => axios.get(buildUrl(rss)));
   Promise.all(promises)
     .then((responses) => {
       const posts = responses.map((response) => {
@@ -20,12 +20,12 @@ const updatePosts = (feeds, currentPosts, watchedState) => {
         const postsData = getPostsData(doc);
         return postsData;
       });
-      const newPosts = compareListsOfPosts(currentPosts, posts.flat());
+      const newPosts = compareListsOfPosts(currentWatchedState.posts, posts.flat());
       if (newPosts.length !== 0) {
-        watchedState.posts.push(...newPosts);
+        currentWatchedState.posts.push(...newPosts);
       }
     })
-    .finally(() => setTimeout(updatePosts, delay, feeds, currentPosts, watchedState));
+    .finally(() => setTimeout(updatePosts, delay, currentWatchedState));
 };
 
 const app = (i118Instance) => {
@@ -40,25 +40,21 @@ const app = (i118Instance) => {
     },
   };
 
-  const form = document.querySelector('.rss-form');
-  const postsEl = document.querySelector('.posts');
-  const input = document.querySelector('.form-control');
-  const feedback = document.querySelector('.feedback');
-  const feedsEl = document.querySelector('.feeds');
-  const modalTitle = document.querySelector('.modal-title');
-  const modalBody = document.querySelector('.modal-body');
+  const domElements = {
+    form: document.querySelector('.rss-form'),
+    postsEl: document.querySelector('.posts'),
+    input: document.querySelector('.form-control'),
+    feedback: document.querySelector('.feedback'),
+    feedsEl: document.querySelector('.feeds'),
+    modalTitle: document.querySelector('.modal-title'),
+    modalBody: document.querySelector('.modal-body'),
+    links: () => document.querySelectorAll('a'),
+  };
 
-  const watchedState = watch(
-    state,
-    i118Instance,
-    input,
-    feedback,
-    feedsEl,
-    postsEl,
-    modalTitle,
-    modalBody,
-  );
-  setTimeout(updatePosts, delay, state.validRss, state.posts, watchedState);
+  const links = document.querySelectorAll('a');
+
+  const watchedState = watch(state, i118Instance, domElements, links);
+  setTimeout(updatePosts, delay, watchedState);
 
   yup.setLocale(settings);
 
@@ -69,7 +65,7 @@ const app = (i118Instance) => {
     return actualSchema.validate(data);
   };
 
-  form.addEventListener('submit', (e) => {
+  domElements.form.addEventListener('submit', (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const newUrl = formData.get('url');
@@ -82,7 +78,7 @@ const app = (i118Instance) => {
         watchedState.posts.push(...posts);
         state.validRss.push(newUrl);
         watchedState.error = null;
-        form.reset();
+        domElements.form.reset();
       })
       .catch((err) => {
         switch (err.name) {
@@ -98,7 +94,7 @@ const app = (i118Instance) => {
       });
   });
 
-  postsEl.addEventListener('click', (e) => {
+  domElements.postsEl.addEventListener('click', (e) => {
     const currentId = e.target.dataset.id;
     const [activePost] = state.posts.filter((post) => post.id === currentId);
     if (e.target.tagName === 'A') {
